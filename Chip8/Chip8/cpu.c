@@ -1,0 +1,61 @@
+#pragma once
+#include "cpu.h"
+#include "opcodes.h"
+
+void setup(CPU* cpu) {
+	cpu->memory = (uint8_t*)malloc(sizeof(uint8_t) * 4096);
+	cpu->v = (uint8_t*)malloc(sizeof(uint8_t) * 16);
+
+	cpu->pc = (uint16_t)malloc(sizeof(uint16_t));
+	cpu->i = (uint16_t)malloc(sizeof(uint16_t));
+	cpu->opcode = (uint16_t)malloc(sizeof(uint16_t));
+
+	cpu->stack = (uint16_t*)malloc(sizeof(uint16_t) * 16);
+	cpu->sp = (uint8_t)malloc(sizeof(uint8_t));
+	cpu->delay = (uint8_t)malloc(sizeof(uint8_t));
+	cpu->sound = (uint8_t)malloc(sizeof(uint8_t));
+
+	cpu->gfx = (uint32_t*)malloc(sizeof(uint32_t) * 64 * 32);
+}
+
+void initialize(CPU* cpu) {
+	uint8_t fontset[80] =
+	{
+		0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+		0x20, 0x60, 0x20, 0x20, 0x70, // 1
+		0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+		0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+		0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+		0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+		0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+		0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+		0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+		0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+		0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+		0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+		0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+		0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+		0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+		0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+	};
+
+	for (size_t i = 0; i < 80; i++)
+	{
+		cpu->memory[80 + i] = fontset[i];
+	}
+}
+
+int cycle(CPU* cpu) {
+
+	// Fetch
+	cpu->opcode = (cpu->memory[cpu->pc] << 8) | cpu->memory[cpu->pc + 1];
+
+	// Increment the PC before we execute anything
+	cpu->pc += 2;
+
+	// Decode and Execute
+	int err = handle_opcode(&cpu);
+	if (err) {
+		return err;
+	}
+}
