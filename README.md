@@ -1,6 +1,7 @@
 # C: Chip8
 
 A little weekend project implementing a Chip8 emulator in C with SDL.
+Made using VS2019, compilable for windows.
 
 Resources used:  
 http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#8xy7  
